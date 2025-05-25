@@ -4,44 +4,41 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Produk;
+use App\Models\Customer;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\ProdukResource\Pages;
+use App\Filament\Resources\CustomerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ProdukResource\RelationManagers;
+use App\Filament\Resources\CustomerResource\RelationManagers;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 
-class ProdukResource extends Resource
+class CustomerResource extends Resource
 {
-    protected static ?string $model = Produk::class;
+    protected static ?string $model = Customer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-inbox';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Produks Data';
+    protected static ?string $navigationLabel = 'Customers Data';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('produk_name')
+                TextInput::make('name')
                     ->required(),
-                TextInput::make('category')
+                TextInput::make('phone')
                     ->required(),
-                TextInput::make('price')
-                    ->required()
-                    ->numeric(),
-                Textarea::make('description'),
-                FileUpload::make('produk_image')
-                    ->image()
+                TextInput::make('address')
+                    ->required(),
+                FileUpload::make('image_profile')
                     ->disk('public')
-                    ->directory('produk-images')
+                    ->image()
+                    ->directory('profile-images')
                     ->visibility('public')
             ]);
     }
@@ -50,19 +47,18 @@ class ProdukResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('produk_name')
-                    ->searchable(),
-                TextColumn::make('category')
-                    ->searchable(),
-                TextColumn::make('price'),
-                TextColumn::make('description'),
-                ImageColumn::make('produk_image')
+                TextColumn::make('name'),
+                TextColumn::make('phone'),
+                TextColumn::make('address'),
+                ImageColumn::make('image_profile')
+                    ->disk('public')
+                    ->visibility('public')
+                    ->url(fn($record) => asset('storage/' . $record->image_profile))
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -83,9 +79,9 @@ class ProdukResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProduks::route('/'),
-            'create' => Pages\CreateProduk::route('/create'),
-            'edit' => Pages\EditProduk::route('/{record}/edit'),
+            'index' => Pages\ListCustomers::route('/'),
+            'create' => Pages\CreateCustomer::route('/create'),
+            'edit' => Pages\EditCustomer::route('/{record}/edit'),
         ];
     }
 }
