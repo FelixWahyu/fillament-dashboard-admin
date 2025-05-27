@@ -18,7 +18,7 @@ class Faktur extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function detail()
+    public function details()
     {
         return $this->hasMany(Detail::class, 'faktur_id');
     }

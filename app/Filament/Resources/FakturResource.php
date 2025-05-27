@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Repeater;
 
 class FakturResource extends Resource
 {
@@ -30,6 +31,22 @@ class FakturResource extends Resource
             ->schema([
                 TextInput::make('kode_faktur'),
                 DatePicker::make('tanggal_faktur'),
+                Repeater::make('details')
+                    ->relationship()
+                    ->schema([
+                        Select::make('produk_id')->relationship('produk', 'produk_name'),
+                        TextInput::make('diskon')
+                            ->numeric(),
+                        TextInput::make('produk_name'),
+                        TextInput::make('harga')
+                            ->numeric(),
+                        TextInput::make('subtotal')
+                            ->numeric(),
+                        TextInput::make('qty')
+                            ->numeric(),
+                        TextInput::make('hasil_qty')
+                            ->numeric(),
+                    ]),
                 Select::make('customer_id')->relationship('customer', 'name'),
                 TextInput::make('ket_faktur'),
                 TextInput::make('total'),
@@ -45,7 +62,7 @@ class FakturResource extends Resource
             ->columns([
                 TextColumn::make('kode_faktur'),
                 TextColumn::make('tanggal_faktur'),
-                TextColumn::make('customer_id'),
+                TextColumn::make('customer.name'),
                 TextColumn::make('ket_faktur'),
                 TextColumn::make('total'),
                 TextColumn::make('nominal_charge'),
