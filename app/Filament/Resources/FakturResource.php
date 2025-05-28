@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 
 class FakturResource extends Resource
 {
@@ -25,34 +26,65 @@ class FakturResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationLabel = 'Fakturs Data';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('kode_faktur'),
-                DatePicker::make('tanggal_faktur'),
+                TextInput::make('kode_faktur')
+                    ->columnSpan([
+                        'default' => 2,
+                        'md' => 2,
+                        'lg' => 1,
+                        'xl' => 1
+                    ]),
+                DatePicker::make('tanggal_faktur')
+                    ->columnSpan([
+                        'default' => 2,
+                        'md' => 2,
+                        'lg' => 1,
+                        'xl' => 1
+                    ]),
+                Select::make('customer_id')->relationship('customer', 'name')
+                    ->columnSpan(2),
                 Repeater::make('details')
                     ->relationship()
                     ->schema([
                         Select::make('produk_id')->relationship('produk', 'produk_name'),
-                        TextInput::make('diskon')
-                            ->numeric(),
                         TextInput::make('produk_name'),
                         TextInput::make('harga')
-                            ->numeric(),
-                        TextInput::make('subtotal')
                             ->numeric(),
                         TextInput::make('qty')
                             ->numeric(),
                         TextInput::make('hasil_qty')
                             ->numeric(),
+                        TextInput::make('diskon')
+                            ->numeric(),
+                        TextInput::make('subtotal')
+                            ->numeric(),
+                    ])
+                    ->columnSpan(2),
+                Textarea::make('ket_faktur')
+                    ->columnSpan(2),
+                TextInput::make('total')
+                    ->columnSpan([
+                        'default' => 2,
+                        'md' => 2,
+                        'lg' => 1,
+                        'xl' => 1
                     ]),
-                Select::make('customer_id')->relationship('customer', 'name'),
-                TextInput::make('ket_faktur'),
-                TextInput::make('total'),
-                TextInput::make('nominal_charge'),
-                TextInput::make('charge'),
-                TextInput::make('total_final'),
+                TextInput::make('total_final')
+                    ->columnSpan([
+                        'default' => 2,
+                        'md' => 2,
+                        'lg' => 1,
+                        'xl' => 1
+                    ]),
+                TextInput::make('nominal_charge')
+                    ->columnSpan(2),
+                TextInput::make('charge')
+                    ->columnSpan(2),
             ]);
     }
 
