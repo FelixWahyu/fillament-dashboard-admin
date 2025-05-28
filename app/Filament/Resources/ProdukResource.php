@@ -30,6 +30,8 @@ class ProdukResource extends Resource
     {
         return $form
             ->schema([
+                TextInput::make('kode_produk')
+                    ->required(),
                 TextInput::make('produk_name')
                     ->required(),
                 TextInput::make('category')
@@ -50,12 +52,13 @@ class ProdukResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('kode_produk')
+                    ->searchable(),
                 TextColumn::make('produk_name')
                     ->searchable(),
                 TextColumn::make('category')
                     ->searchable(),
                 TextColumn::make('price'),
-                TextColumn::make('description'),
                 ImageColumn::make('produk_image')
             ])
             ->filters([

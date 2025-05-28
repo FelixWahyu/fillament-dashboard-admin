@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FakturResource\Pages;
 use App\Filament\Resources\FakturResource\RelationManagers;
+use App\Models\Customer;
 use App\Models\Faktur;
+use App\Models\Produk;
 use Attribute;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -19,6 +21,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 
 class FakturResource extends Resource
 {
@@ -46,24 +50,66 @@ class FakturResource extends Resource
                         'lg' => 1,
                         'xl' => 1
                     ]),
-                Select::make('customer_id')->relationship('customer', 'name')
+                Select::make('customer_id')
+                    ->reactive()
+                    ->relationship('customer', 'name')
+                    ->columnSpan(2)
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $customer = Customer::find($state);
+
+                        if ($customer) {
+                            $set('kode_customer', $customer->kode_customer);
+                        }
+                    }),
+                TextInput::make('kode_customer')
+                    ->disabled()
                     ->columnSpan(2),
                 Repeater::make('details')
                     ->relationship()
                     ->schema([
-                        Select::make('produk_id')->relationship('produk', 'produk_name'),
-                        TextInput::make('produk_name'),
+                        Select::make('produk_id')
+                            ->reactive()
+                            ->relationship('produk', 'produk_name')
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $produk = Produk::find($state);
+
+                                if ($produk) {
+                                    $set('kode_produk', $produk->kode_produk);
+                                    $set('harga', $produk->price);
+                                }
+                            }),
+                        TextInput::make('kode_produk')
+                            ->disabled(),
                         TextInput::make('harga')
-                            ->numeric(),
+                            ->disabled()
+                            ->numeric()
+                            ->prefix('Rp'),
                         TextInput::make('qty')
-                            ->numeric(),
+                            ->numeric()
+                            ->reactive()
+                            ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                $tampungHarga = $get('harga');
+
+                                $set('hasil_qty', intval($state * $tampungHarga));
+                            }),
                         TextInput::make('hasil_qty')
+                            ->disabled()
                             ->numeric(),
                         TextInput::make('diskon')
-                            ->numeric(),
+                            ->reactive()
+                            ->numeric()
+                            ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                $hasilQty = $get('hasil_qty');
+                                $diskon = $hasilQty * ($state / 100);
+                                $hasil = $hasilQty - $diskon;
+
+                                $set('subtotal', intval($hasil));
+                            }),
                         TextInput::make('subtotal')
+                            ->disabled()
                             ->numeric(),
                     ])
+                    ->live()
                     ->columnSpan(2),
                 Textarea::make('ket_faktur')
                     ->columnSpan(2),
@@ -73,7 +119,16 @@ class FakturResource extends Resource
                         'md' => 2,
                         'lg' => 1,
                         'xl' => 1
-                    ]),
+                    ])
+                    ->placeholder(function (Set $set, Get $get) {
+                        $detail = collect($get('detail'))->pluck('subtotal')->sum();
+
+                        if ($detail == null) {
+                            $set('total', 0);
+                        } else {
+                            $set('total', $detail);
+                        }
+                    }),
                 TextInput::make('total_final')
                     ->columnSpan([
                         'default' => 2,
