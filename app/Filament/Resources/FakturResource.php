@@ -60,16 +60,24 @@ class FakturResource extends Resource
                         if ($customer) {
                             $set('kode_customer', $customer->kode_customer);
                         }
+                    })
+                    ->afterStateHydrated(function ($state, callable $set) {
+                        $customer = Customer::find($state);
+
+                        if ($customer) {
+                            $set('kode_customer', $customer->kode_customer);
+                        }
                     }),
                 TextInput::make('kode_customer')
-                    ->disabled()
+                    // ->disabled()
+                    ->reactive()
                     ->columnSpan(2),
                 Repeater::make('details')
                     ->relationship()
                     ->schema([
                         Select::make('produk_id')
-                            ->reactive()
                             ->relationship('produk', 'produk_name')
+                            ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $produk = Produk::find($state);
 
@@ -78,10 +86,10 @@ class FakturResource extends Resource
                                     $set('harga', $produk->price);
                                 }
                             }),
-                        TextInput::make('kode_produk')
-                            ->disabled(),
+                        TextInput::make('kode_produk'),
+                        // ->disabled(),
                         TextInput::make('harga')
-                            ->disabled()
+                            // ->disabled()
                             ->numeric()
                             ->prefix('Rp'),
                         TextInput::make('qty')
@@ -93,7 +101,7 @@ class FakturResource extends Resource
                                 $set('hasil_qty', intval($state * $tampungHarga));
                             }),
                         TextInput::make('hasil_qty')
-                            ->disabled()
+                            // ->disabled()
                             ->numeric(),
                         TextInput::make('diskon')
                             ->reactive()
@@ -106,7 +114,7 @@ class FakturResource extends Resource
                                 $set('subtotal', intval($hasil));
                             }),
                         TextInput::make('subtotal')
-                            ->disabled()
+                            // ->disabled()
                             ->numeric(),
                     ])
                     ->live()
@@ -121,7 +129,7 @@ class FakturResource extends Resource
                         'xl' => 1
                     ])
                     ->placeholder(function (Set $set, Get $get) {
-                        $detail = collect($get('detail'))->pluck('subtotal')->sum();
+                        $detail = collect($get('details'))->pluck('subtotal')->sum();
 
                         if ($detail == null) {
                             $set('total', 0);
@@ -129,16 +137,26 @@ class FakturResource extends Resource
                             $set('total', $detail);
                         }
                     }),
-                TextInput::make('total_final')
+                TextInput::make('nominal_charge')
                     ->columnSpan([
                         'default' => 2,
                         'md' => 2,
                         'lg' => 1,
                         'xl' => 1
-                    ]),
-                TextInput::make('nominal_charge')
-                    ->columnSpan(2),
+                    ])
+                    ->reactive()
+                    ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                        $total = $get('total');
+                        $charge = $total * ($state / 100);
+                        $hasil = $total + $charge;
+
+                        $set('total_final', $hasil);
+                        $set('charge', $charge);
+                    }),
                 TextInput::make('charge')
+                    // ->disabled()
+                    ->columnSpan(2),
+                TextInput::make('total_final')
                     ->columnSpan(2),
             ]);
     }
@@ -160,6 +178,7 @@ class FakturResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

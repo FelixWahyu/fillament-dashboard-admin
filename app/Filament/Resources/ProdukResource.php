@@ -60,6 +60,8 @@ class ProdukResource extends Resource
                     ->searchable(),
                 TextColumn::make('price'),
                 ImageColumn::make('produk_image')
+                    ->disk('public')
+                    ->visibility('public')
             ])
             ->filters([
                 //

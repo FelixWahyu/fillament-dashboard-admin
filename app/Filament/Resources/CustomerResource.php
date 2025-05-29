@@ -57,12 +57,13 @@ class CustomerResource extends Resource
                 ImageColumn::make('image_profile')
                     ->disk('public')
                     ->visibility('public')
-                    ->url(fn($record) => asset('storage/' . $record->image_profile))
+                    ->url(fn($record) => asset('storage/' . $record->image_profile)),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
