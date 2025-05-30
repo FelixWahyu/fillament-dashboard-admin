@@ -58,7 +58,8 @@ class ProdukResource extends Resource
                     ->searchable(),
                 TextColumn::make('category')
                     ->searchable(),
-                TextColumn::make('price'),
+                TextColumn::make('price')
+                    ->formatStateUsing(fn(Produk $record): string => 'Rp ' . number_format($record->price, 0, '.', '.')),
                 ImageColumn::make('produk_image')
                     ->disk('public')
                     ->visibility('public')

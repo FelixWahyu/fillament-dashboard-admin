@@ -45,7 +45,8 @@ class PenjualanResource extends Resource
                     ->label('Kode Faktur'),
                 TextColumn::make('jumlah')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(fn(Penjualan $record): string => 'Rp ' . number_format($record->jumlah, 0, '.', '.')),
                 TextColumn::make('customer.name')
                     ->sortable()
                     ->searchable()
@@ -71,7 +72,7 @@ class PenjualanResource extends Resource
                     ->button(),
             ])
             ->filters([
-                //
+                // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -80,6 +81,8 @@ class PenjualanResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -98,5 +101,13 @@ class PenjualanResource extends Resource
             'create' => Pages\CreatePenjualan::route('/create'),
             'edit' => Pages\EditPenjualan::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

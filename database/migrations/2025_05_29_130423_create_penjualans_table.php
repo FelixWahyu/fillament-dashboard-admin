@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('faktur_id')->constrained('fakturs', 'id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->boolean('status')->default(0);
             $table->text('keterangan')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
