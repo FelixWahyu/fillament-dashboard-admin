@@ -168,11 +168,12 @@ class FakturResource extends Resource
                 TextColumn::make('kode_faktur'),
                 TextColumn::make('tanggal_faktur'),
                 TextColumn::make('customer.name'),
-                TextColumn::make('ket_faktur'),
-                TextColumn::make('total'),
+                TextColumn::make('total')
+                    ->formatStateUsing(fn(Faktur $record): string => 'Rp ' . number_format($record->total, 0, '.', '.')),
                 TextColumn::make('nominal_charge'),
                 TextColumn::make('charge'),
-                TextColumn::make('total_final'),
+                TextColumn::make('total_final')
+                    ->formatStateUsing(fn(Faktur $record): string => 'Rp ' . number_format($record->total_final, 0, '.', '.')),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),

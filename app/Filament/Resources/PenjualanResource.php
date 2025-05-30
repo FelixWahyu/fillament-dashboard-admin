@@ -52,7 +52,12 @@ class PenjualanResource extends Resource
                 TextColumn::make('status')
                     ->sortable()
                     ->searchable()
-                    ->badge(),
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        '0' => 'danger',
+                        '1' => 'info',
+                    })
+                    ->formatStateUsing(fn(Penjualan $record): string => $record->status == 0 ? 'Belum Lunas' : 'Lunas'),
             ])
             ->filters([
                 //
