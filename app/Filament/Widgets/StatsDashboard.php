@@ -2,20 +2,24 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Customer;
 use App\Models\Faktur;
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use App\Models\Penjualan;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class StatsDashboard extends BaseWidget
 {
     protected function getStats(): array
     {
         $fakturCount = Faktur::count();
+        $pendapatan = Penjualan::sum('jumlah');
+        $totalCustomer = Customer::count();
 
         return [
             Stat::make('Jumlah Faktur', $fakturCount . ' Faktur'),
-            Stat::make('Bounce rate', '21%'),
-            Stat::make('Average time on page', '3:12'),
+            Stat::make('Pendapatan', 'Rp ' . number_format($pendapatan, 0, '.', '.')),
+            Stat::make('Total Customer', $totalCustomer . ' Customer'),
         ];
     }
 }

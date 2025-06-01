@@ -2,7 +2,11 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Penjualan;
+use Carbon\Carbon;
+use Flowframe\Trend\Trend;
 use Filament\Widgets\ChartWidget;
+use Flowframe\Trend\TrendValue;
 
 class penjualanChart extends ChartWidget
 {
@@ -12,14 +16,22 @@ class penjualanChart extends ChartWidget
 
     protected function getData(): array
     {
+        $data = Trend::model(Penjualan::class)
+            ->between(
+                start: now()->startOfMonth(),
+                end: now()->endOfMonth(),
+            )
+            ->perDay()
+            ->sum('jumlah');
+
         return [
             'datasets' => [
                 [
-                    'label' => 'Penjualan Produk',
-                    'data' => [21, 32, 45, 74, 65, 77, 89],
+                    'label' => 'Total Penjualan Harian',
+                    'data' => $data->map(fn(TrendValue $value) => $value->aggregate)->toArray(),
                 ],
             ],
-            'labels' => ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            'labels' => $data->map(fn(TrendValue $value) => Carbon::parse($value->date)->format('d M'))->toArray(),
         ];
     }
 
