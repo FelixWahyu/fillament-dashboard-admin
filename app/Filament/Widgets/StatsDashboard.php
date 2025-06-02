@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Customer;
+use App\Models\Detail;
 use App\Models\Faktur;
 use App\Models\Penjualan;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -15,10 +16,12 @@ class StatsDashboard extends BaseWidget
         $fakturCount = Faktur::count();
         $pendapatan = Penjualan::sum('jumlah');
         $totalCustomer = Customer::count();
+        $totalProdukTerjual = Detail::sum('qty');
 
         return [
             Stat::make('Jumlah Faktur', $fakturCount . ' Faktur'),
-            Stat::make('Pendapatan', 'Rp ' . number_format($pendapatan, 0, '.', '.')),
+            Stat::make('Total Pendapatan', 'Rp ' . number_format($pendapatan, 0, '.', '.')),
+            Stat::make('Total Produk Terjual', $totalProdukTerjual . ' Produk'),
             Stat::make('Total Customer', $totalCustomer . ' Customer'),
         ];
     }

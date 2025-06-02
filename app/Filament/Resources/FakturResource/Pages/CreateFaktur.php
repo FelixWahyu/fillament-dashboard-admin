@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\FakturResource\Pages;
 
-use App\Filament\Resources\FakturResource;
-use App\Models\Penjualan;
 use Filament\Actions;
+use App\Models\Penjualan;
+use Filament\Notifications\Notification;
+use App\Filament\Resources\FakturResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateFaktur extends CreateRecord
@@ -22,5 +23,14 @@ class CreateFaktur extends CreateRecord
             'keterangan' => $this->record->ket_faktur,
             'status' => 0,
         ]);
+    }
+
+    protected function getCreatedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title('Berhasil!')
+            ->body('Data faktur berhasil ditambahkan.')
+            ->color('success');
     }
 }
